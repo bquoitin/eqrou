@@ -1,0 +1,112 @@
+<?xml version="1.0"?>
+<project name="routing" default="compile" basedir=".">
+
+  <property name="src" location="src"/>
+  <property name="lib" location="lib"/>
+  <property name="build.dir" location="bin"/>
+  <property name="build.classes" location="${build.dir}/classes"/>
+  <property name="javadoc" location="doc/javadoc"/>
+
+  <target name="all" depends="compile,jar,javadoc"/>
+
+  <target name="clean">
+    <delete dir="${build.dir}"/>
+    <delete dir="${javadoc}"/>
+  </target>
+
+  <target name="init" depends="clean">
+    <mkdir dir="${lib}"/>
+    <mkdir dir="${build.dir}"/>
+    <mkdir dir="${build.classes}"/>
+  </target>
+
+  <target name="compile" depends="init"
+        description="compile the source " >
+    	<!-- Compile the java code from ${src} into ${build} -->
+    	<javac srcdir="${src}" destdir="${build.classes}" debug="on" 
+               debuglevel="lines,vars,source" includeantruntime="false">
+          <compilerarg value="-Xlint:unchecked"/>
+	    	 <classpath>
+	    		<fileset dir="lib">
+	        		<include name="**/*.jar"/>
+	      		</fileset>
+	      	</classpath>
+    	</javac>
+  </target>
+
+  <target name="jar"
+    description="generates the jar files from the source"
+	depends="compile">
+    <jar destfile="${build.dir}/routing.jar">
+      <fileset dir="${build.classes}"/>
+    </jar>
+  </target>
+
+  <target name="javadoc"
+    description="generates the javadoc from the source">
+    <delete dir="${javadoc}"/>
+    <mkdir dir="${javadoc}"/>
+    <javadoc destdir="${javadoc}">
+      <classpath>
+        <fileset dir="lib">
+          <include name="**/*.jar"/>
+        </fileset>
+      </classpath>
+      <fileset dir="${src}"/>
+    </javadoc>
+  </target>
+
+
+  <!-- junit tests -->
+
+	<property name="test.dir" location="tests"/>
+	<property name="test.data.dir" location="${test.dir}\\reports\\junit\\data" />
+	<property name="test.reports.dir" location="${test.dir}\\reports\\junit" />
+	
+	<target name="compile-junit-tests" depends="jar">
+		<mkdir dir="${test.dir}\\classes" />
+		<javac srcdir="${test.dir}\\src" destdir="${test.dir}\\classes" includeantruntime="false">
+		  <classpath>
+			<pathelement location="${test.dir}\\lib\\junit-4.8.2.jar"/>
+			<pathelement location="${build.dir}/routing.jar"/>
+			<fileset dir="lib">
+			  <include name="**/*.jar"/>
+			</fileset>
+		  </classpath>
+		</javac>
+	</target>
+
+	<target name="junit" depends="compile-junit-tests">
+		<delete dir="${test.data.dir}" />
+		<delete dir="${test.reports.dir}" />
+		<mkdir dir="${test.data.dir}" />
+		<mkdir dir="${test.reports.dir}" />		
+		<junit printsummary="on" showoutput="true" fork="true">
+		  <classpath>
+			<pathelement location="${test.dir}\\classes" />
+			<pathelement location="${build.dir}\\routing.jar"/>
+			<fileset dir="${test.dir}\\lib">
+			  <include name="**/*.jar"/>
+			</fileset>
+			<fileset dir="lib">
+			  <include name="**/*.jar"/>
+			</fileset>
+		  </classpath> 
+		  
+		  <batchtest fork="yes" todir="${test.data.dir}">
+			<fileset dir="${test.dir}\\classes">
+			  <include name="**/*Test.class" />
+			</fileset>
+		  </batchtest>
+		  <formatter type="xml" />
+		</junit>
+
+		<junitreport todir="${test.data.dir}">
+			<fileset dir="${test.data.dir}">
+				<include name="TEST-*.xml" />
+			</fileset>
+			<report format="frames" todir="${test.reports.dir}" />
+		</junitreport>
+	</target>
+
+</project>
