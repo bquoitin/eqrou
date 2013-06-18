@@ -1,6 +1,6 @@
 /*
 routing-equiv: testing the equivalence of routing policies
-Copyright (C) 2011 routing-equiv team
+Copyright (C) 2013 routing-equiv team
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
